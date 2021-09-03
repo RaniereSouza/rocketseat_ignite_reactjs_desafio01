@@ -1,29 +1,64 @@
-import { useState } from 'react'
+import { useState }               from 'react'
+import { FiTrash, FiCheckSquare } from 'react-icons/fi'
 
 import '../styles/tasklist.scss'
 
-import { FiTrash, FiCheckSquare } from 'react-icons/fi'
-
 interface Task {
-  id: number;
-  title: string;
+  id:         number;
+  title:      string;
   isComplete: boolean;
 }
 
 export function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks,        setTasks]        = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
 
   function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    if (newTaskTitle.trim() === '') return;
+
+    setTasks([...tasks, {
+      id:         Date.now(),
+      title:      newTaskTitle,
+      isComplete: false
+    }]);
+    setNewTaskTitle('');
   }
 
   function handleToggleTaskCompletion(id: number) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    let   taskIndex = -1;
+    const task      = tasks.find((item, index) => {
+                        if (item.id === id) {
+                          taskIndex = index;
+                          return true;
+                        }
+                        return false;
+                      });
+
+    if (!task || (taskIndex < 0)) return;
+    
+    const updatedTasks = [...tasks];
+    updatedTasks[taskIndex] = {...task, isComplete: !task.isComplete};
+    setTasks(updatedTasks);
   }
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+    let   taskIndex = -1;
+    const task      = tasks.find((item, index) => {
+                        if (item.id === id) {
+                          taskIndex = index;
+                          return true;
+                        }
+                        return false;
+                      });
+    
+    if (!task || (taskIndex < 0)) return;
+
+    const updatedTasks = [...tasks];
+    updatedTasks.splice(taskIndex, 1);
+    setTasks(updatedTasks);
   }
 
   return (
@@ -66,7 +101,6 @@ export function TaskList() {
               </button>
             </li>
           ))}
-          
         </ul>
       </main>
     </section>
